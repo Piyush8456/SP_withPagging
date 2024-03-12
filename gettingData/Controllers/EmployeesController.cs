@@ -29,7 +29,7 @@ namespace gettingData.Controllers
         }
 
         [HttpPost]
-        public JsonResult AjaxMethod(int pageIndex, string searchTerm)
+        public JsonResult AjaxMethod(int pageIndex, int pageSize)
         {
             employeeEntityModel model = new employeeEntityModel();
             model.PageIndex = pageIndex;

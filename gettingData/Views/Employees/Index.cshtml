@@ -1,108 +1,119 @@
-﻿<!DOCTYPE html>
-<html>
-<head>
-    <meta name="viewport" content="width=device-width" />
-    <title>Index</title>
-    <style>
-        .pagination {
-            display: inline-block;
-        }
-
-            .pagination a {
-                color: black;
-                float: left;
-                padding: 8px 16px;
-                text-decoration: none;
-                transition: background-color .3s;
-                border: 1px solid #ddd;
-                margin: 0 4px;
+﻿<html>
+    <head>
+        <meta name="viewport" content="width=device-width" />
+        <title>Index</title>
+        <style>
+            .pagination {
+                display: inline-block;
             }
 
-                .pagination a.active {
-                    background-color: #007bff;
-                    color: white;
-                    border: 1px solid #007bff;
+                .pagination a {
+                    color: black;
+                    float: left;
+                    padding: 8px 16px;
+                    text-decoration: none;
+                    transition: background-color .3s;
+                    border: 1px solid #ddd;
+                    margin: 0 4px;
                 }
 
-                .pagination a:hover:not(.active) {
-                    background-color: #ddd;
-                }
-    </style>
-</head>
-<body>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+                    .pagination a.active {
+                        background-color: #007bff;
+                        color: white;
+                        border: 1px solid #007bff;
+                    }
+
+                    .pagination a:hover:not(.active) {
+                        background-color: #ddd;
+                    }
+        </style>
     </head>
-    <script type="text/javascript">
-        $(document).ready(function () {
-            $("#Button1").click(function () {
-                alert("Hello guys");
+    <body>
+
+
+
+        <script src="~/Scripts/jquery-3.7.1.min.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+        <script type="text/javascript">
+            $(document).ready(function () {
+                $("#Button1").click(function () {
+                    alert("Hello guys");
+                });
             });
-        });
-    </script>
+        </script>
 
 
-    <h4>Employees</h4>
-    <hr />
-    <button id="Button1" runat="server" Text="button"> button</button>
-    <table id="WebGrid" class="Grid">
-        <thead>
-            <tr>
-                <th>Employee ID</th>
-                <th>First Name</th>
-                <th>Last Name</th>
-                <th>Mobile Number</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var employee in Model)
-            {
+        <h4>Employees</h4>
+        <hr />
+        <button id="Button1" runat="server" Text="button"> button</button>
+        <table id="WebGrid" class="Grid">
+            <thead>
                 <tr>
-                    <td>@employee.employeeId</td>
-                    <td>@employee.firstName</td>
-                    <td>@employee.lastName</td>
-                    <td>@employee.mobileNumber</td>
+                    <th>Employee ID</th>
+                    <th>First Name</th>
+                    <th>Last Name</th>
+                    <th>Mobile Number</th>
                 </tr>
+            </thead>
+            <tbody>
+                @foreach (var employee in Model)
+                {
+                    <tr>
+                        <td>@employee.employeeId</td>
+                        <td>@employee.firstName</td>
+                        <td>@employee.lastName</td>
+                        <td>@employee.mobileNumber</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+        <br />
+        <button c></button>
+        <div class="Pager"></div>
+
+        <script type="text/javascript">
+        //$(document).ready(function () {
+        //    var tt = new DataTable('#WebGrid');
+        //})
+
+
+
+
+            function GetEmployees(pageIndex) {
+        $.ajax({
+            type: "POST",
+            url: "@Url.Action("AjaxMethod", "Employees")",
+            data: JSON.stringify({ pageIndex: pageSize }),
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (response) {
+                $("#WebGrid tbody").empty();
+                $.each(response.employees, function (index, employee) {
+                    $("#WebGrid tbody").append('<tr><td>' + employee.employeeId + '</td><td>' + employee.firstName + '</td><td>' + employee.lastName + '</td><td>' + employee.mobileNumber + '</td></tr>');
+                });
+
+                // Remove existing pagination links
+                $(".pagination").remove();
+
+
+                var pagination = '<ul class="pagination">';
+                for (var i = 1; i <= response.pageSize; i++) {
+                    pagination += '<li><a href="#" class="page" data-pageIndex="' + i + '">' + i + '</a></li>';
+                }
+                pagination += '</ul>';
+                $(".Pager").append(pagination);
+
+                // Highlight the current page
+                $(".pagination li a").removeClass("active");
+                $(".pagination li a[data-pageIndex='" + response.pageIndex + "']").addClass("active");
+            },
+            error: function (response) {
+                alert(response.responsetext);
             }
-        </tbody>
-    </table>
-    <br />
-    <div class="Pager"></div>
-    <script src="~/Scripts/jquery-3.7.1.min.js"></script>
-    <script type="text/javascript">
-      function GetEmployees(pageIndex) {
-    $.ajax({
-        type: "POST",
-        url: "@Url.Action("AjaxMethod", "Employees")",
-        data: JSON.stringify({ pageIndex: pageIndex }),
-        contentType: "application/json; charset=utf-8",
-        dataType: "json",
-        success: function (response) {
-            $("#WebGrid tbody").empty();
-            $.each(response.employees, function (index, employee) {
-                $("#WebGrid tbody").append('<tr><td>' + employee.employeeId + '</td><td>' + employee.firstName + '</td><td>' + employee.lastName + '</td><td>' + employee.mobileNumber + '</td></tr>');
-            });
+        });
+    };
 
-            // Remove existing pagination links
-            $(".pagination").remove();
+        </script>
+    </body>
+    </html>
 
-            // Add new pagination links
-            var pagination = '<ul class="pagination">';
-            for (var i = 1; i <= response.totalPages; i++) {
-                pagination += '<li><a href="#" class="page" data-pageIndex="' + i + '">' + i + '</a></li>';
-            }
-            pagination += '</ul>';
-            $(".Pager").append(pagination);
-
-            // Highlight the current page
-            $(".pagination li a").removeClass("active");
-            $(".pagination li a[data-pageIndex='" + response.pageIndex + "']").addClass("active");
-        },
-        error: function (response) {
-            alert(response.responsetext);
-        }
-    });
-};
-
-    </script>
-</body>
-</html>
